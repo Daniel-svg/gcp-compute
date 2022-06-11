@@ -6,6 +6,7 @@ exports.resizeInstances = (event, context, callback) => {
         const payload = _validatePayload(
             JSON.parse(Buffer.from(event.data, 'base64').toString())
         );
+        console.log(payload.size == 0 ? '## Removing Instances ##' : '## Adding Instances ##');
         main(payload);
     } catch (err) {
         console.log(err);
@@ -27,7 +28,7 @@ function main(data) {
         let operation = response.latestResponse;
         const operationsClient = new compute.RegionOperationsClient();
 
-        // Wait for the resize operation to complete.
+        // Wait for the delete operation to complete.
         while (operation.status !== 'Done') {
             [operation] = await operationsClient.wait({
                 operation: operation.name,
@@ -35,6 +36,8 @@ function main(data) {
                 region: data.region
             });
         }
+
+        console.log('## Instances ' + data.size == 0 ? 'Removed ##' : 'Added ##');
     }
     listAllInstances();
 }
